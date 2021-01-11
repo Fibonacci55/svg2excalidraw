@@ -1,3 +1,30 @@
+import abc
+
+class PathCommand(abc.ABC):
+
+    def __init__(self):
+        pass
+    @abc.abstractmethod
+    def execute(self):
+        pass
+
+class RelativeMove(PathCommand):
+
+    def __init__(self, is_first=True):
+        super().__init__()
+        self.is_first=is_first
+
+    def execute(self, points):
+        pass
+
+class AbsoluteMove(PathCommand):
+
+    def __init__(self, is_first=True):
+        super().__init__()
+        self.is_first=is_first
+
+    def execute(self, points):
+        pass
 
 
 class PathHandler:

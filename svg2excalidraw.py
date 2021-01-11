@@ -86,8 +86,9 @@ if __name__ == '__main__':
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
     #filename = 'D:\\Projects\\SVG2Excalidraw\\sample3.svg'
     logging.basicConfig(level=logging.DEBUG)
-    logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
+    formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
     log.addFilter(logging.Filter(name='svg2excalidraw'))
+
     w = svg_reader.My_Doc_Walker(filename)
     w.walk()
 
