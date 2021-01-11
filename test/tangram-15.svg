@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="744.09448819"
+   height="1052.3622047" id="svg4087" version="1.1" inkscape:version="0.48+devel r9772"
+   sodipodi:docname="tangram-14.svg">
+   <defs id="defs4089"/>
+   <sodipodi:namedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0"
+      inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="0.66136926"
+      inkscape:cx="557.54396" inkscape:cy="526.18109" inkscape:document-units="px"
+      inkscape:current-layer="layer1" showgrid="false" showguides="false" inkscape:guide-bbox="true"
+      inkscape:window-width="1440" inkscape:window-height="851" inkscape:window-x="0"
+      inkscape:window-y="1" inkscape:window-maximized="1">
+      <sodipodi:guide orientation="0,1" position="452.65938,762.62238" id="guide4160"/>
+      <sodipodi:guide orientation="0,1" position="510.30494,266.49258" id="guide4162"/>
+      <sodipodi:guide orientation="1,0" position="628.43108,517.86501" id="guide4164"/>
+      <sodipodi:guide orientation="1,0" position="131.35627,502.74486" id="guide4166"/>
+      <sodipodi:guide orientation="1,0" position="380.83868,481.95466" id="guide4678"/>
+      <sodipodi:guide orientation="0,1" position="437.53923,515.02998" id="guide4680"/>
+      <sodipodi:guide orientation="1,0" position="257.04249,604.80585" id="guide4688"/>
+      <sodipodi:guide orientation="0,1" position="558.5004,640.7162" id="guide4690"/>
+      <sodipodi:guide orientation="1,0" position="507.46991,679.46157" id="guide4694"/>
+      <sodipodi:guide orientation="0,1" position="697.41675,393.1238" id="guide4700"/>
+   </sodipodi:namedview>
+   <metadata id="metadata4092">
+      <rdf:RDF>
+         <cc:Work rdf:about="">
+            <dc:format>image/svg+xml</dc:format>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+            <dc:title/>
+         </cc:Work>
+      </rdf:RDF>
+   </metadata>
+   <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1">
+      <rect
+         style="color:#000000;fill:#eef4d7;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect4723" width="734.83911" height="1043.29" x="4.6276855" y="4.5360441"/>
+      <g id="g4124" transform="translate(-55.020394,57.456556)">
+         <path inkscape:connector-curvature="0" id="path4682"
+            d="m 538.61864,677.19423 -213.37807,0.81139 0.40571,-213.7837 z"
+            style="color:#000000;fill:#f8b334;fill-opacity:1;stroke:#000000;stroke-width:3.03537893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+         <path inkscape:connector-curvature="0" id="path4684"
+            d="M 478.29978,609.42183 327.41875,457.96709 478.29979,307.65973 z"
+            style="color:#000000;fill:#91cdc3;fill-opacity:1;stroke:#000000;stroke-width:3.03537893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+         <path inkscape:connector-curvature="0" id="path4686"
+            d="m 537.28516,681.78715 10e-6,150.30739 -148.5863,-150.30734 z"
+            style="color:#000000;fill:#feec02;fill-opacity:1;stroke:#000000;stroke-width:3.03537893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+         <path inkscape:connector-curvature="0" id="path4692   "
+            d="m 220.20241,835.44262 151.45474,-3e-5 -75.15368,-74.00629 z"
+            style="color:#000000;fill:#36b4e6;fill-opacity:1;stroke:#000000;stroke-width:3.03537893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+         <path inkscape:connector-curvature="0" id="path4702"
+            d="m 557.63181,266.70778 -74.0063,75.15368 74.0063,76.87475 76.30105,-76.87475 z"
+            style="color:#000000;fill:#e6462c;fill-opacity:1;stroke:#000000;stroke-width:3.03537893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+         <path inkscape:connector-curvature="0" id="path4704"
+            d="m 482.6792,482.13333 108.31165,0.4056 -106.28333,106.28338 z"
+            style="color:#000000;fill:#049633;fill-opacity:1;stroke:#000000;stroke-width:3.03537893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+         <path inkscape:connector-curvature="0" id="path4706"
+            d="m 304.65454,761.27581 76.30103,73.4326 150.88107,0 -76.87476,-73.4326 z"
+            style="color:#000000;fill:#0260a0;fill-opacity:1;stroke:#000000;stroke-width:3.03537893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         />
+      </g>
+   </g>
+</svg>
