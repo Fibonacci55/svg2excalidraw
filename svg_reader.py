@@ -1,5 +1,7 @@
 from lxml import etree, objectify
-import logging as log
+import logging
+log = logging.getLogger('svg_reader')
+
 
 class Svg_Element:
 
@@ -135,7 +137,7 @@ if __name__ == '__main__':
 
     #tree = etree.parse(filename)
     #print(isinstance(tree.getroot(), objectify.ObjectifiedElement))
-    log.basicConfig(level=log.DEBUG)
+    loggging.basicConfig(level=log.DEBUG)
     #g = Group()
     #svg = etree.Element ("svg")
     #print (svg)
