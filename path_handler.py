@@ -33,7 +33,7 @@ class PathCommand(abc.ABC):
     def __init__(self, param_list):
         log.debug('%s::__init__: %s' % (self.__class__.__name__, param_list))
         self.param_list = param_list
-        pass
+        self.closed = False
 
     @abc.abstractmethod
     def execute(self, start_point):
@@ -102,6 +102,8 @@ class PathHandler:
             lb = v
             ub = sl[i+1]
             cmd = self.make_cmd(l[lb:ub])
+            if l[ub] in ['z', 'Z']:
+                cmd.closed = True
             cmd_list.append(cmd)
         lb = sl[-1]
         cmd = self.make_cmd(l[lb:])
