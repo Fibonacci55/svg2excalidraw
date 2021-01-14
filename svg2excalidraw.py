@@ -1,49 +1,45 @@
 import svg_reader
 import excalidraw_writer
 import jsonpickle
-import re
-import copy
 from collections import UserDict
+from path_handler import PathHandler
 
 import logging
 log = logging.getLogger('svg2excalidraw')
 
 
-
-class Svg_Style2Excalidraw(UserDict):
-
+class SvgStyle2Excalidraw(UserDict):
 
     def __init__(self):
 
-        def conv_width (w):
-            if w[-2:] == 'px':
-                return max(round(float(w[:-2])), 3)
+        def conv_width(width):
+            if width[-2:] != 'px':
+                return max(round(float(width)), 3)
             else:
-                return max(round(float(w)), 3)
+                return max(round(float(width[:-2])), 3)
 
         super().__init__()
-        ident = lambda x: x
 
-        self.data['fill'] = ('backgroundColor', ident)
-        self.data['fill-opacity'] = ('opacity', lambda x: 100*x)
+        self.data['fill'] = ('backgroundColor', lambda x: x)
+        self.data['fill-opacity'] = ('opacity', lambda x: 100 * x)
         self.data['stroke-width'] = ('strokeWidth', conv_width)
 
     def __call__(self, svg_style):
         d = {}
         for k, v in svg_style.items():
             if k in self.data:
-                exc_key=self.data[k][0]
-                func=self.data[k][1]
-                d[exc_key]=func(v)
+                exc_key = self.data[k][0]
+                func = self.data[k][1]
+                d[exc_key] = func(v)
         return d
+
 
 class Converter:
 
-    def __init__(self, log_level=None):
-        pass
+    def __init__(self):
         self.elements = []
         self.path_handler = PathHandler()
-        self.style_converter = Svg_Style2Excalidraw()
+        self.style_converter = SvgStyle2Excalidraw()
 
     def visit_group(self, group):
         log.debug('visiting group')
@@ -55,8 +51,8 @@ class Converter:
         style = self.style_converter(rectangle.style)
         r = excalidraw_writer.Rectangle(id=rectangle.id,
                                         x=int(float(rectangle.x)),
-                                        y = int(float(rectangle.y)),
-                                        width = int(float(rectangle.width)),
+                                        y=int(float(rectangle.y)),
+                                        width=int(float(rectangle.width)),
                                         height=int(float(rectangle.height)),
                                         **style)
 
@@ -66,25 +62,22 @@ class Converter:
         log.debug('visiting path %s %s' % (path.id, path.path_data))
         self.path_handler(path.path_data)
         style = self.style_converter(path.style)
-        l=excalidraw_writer.Line(id=path.id,
-                                   x=self.path_handler.x,
-                                   y=self.path_handler.y,
-                                   points=self.path_handler.points,
-                                   **style
-                                 )
-        self.elements.append(l)
+        line = excalidraw_writer.Line(id=path.id,
+                                      x=self.path_handler.x,
+                                      y=self.path_handler.y,
+                                      points=self.path_handler.points,
+                                      **style)
+        self.elements.append(line)
 
-    def convert (self, svg_elements):
+    def convert(self, svg_elements):
 
-        converted_elements = []
         for el in svg_elements:
-            el.visit (self)
+            el.visit(self)
 
 
 if __name__ == '__main__':
-
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
-    #filename = 'D:\\Projects\\SVG2Excalidraw\\sample3.svg'
+    # filename = 'D:\\Projects\\SVG2Excalidraw\\sample3.svg'
     logging.basicConfig(level=logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
     log.addFilter(logging.Filter(name='svg2excalidraw'))
@@ -93,7 +86,7 @@ if __name__ == '__main__':
     w.walk()
 
     c = Converter()
-    print ("====================")
+    print("====================")
     c.convert(w.g.group_elements)
 
     outf_name = 'D:\\Projects\\SVG2Excalidraw\\test1.excalidraw'
