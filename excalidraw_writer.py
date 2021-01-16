@@ -50,6 +50,17 @@ class Line (Excalidraw_Element):
         self.width = max (xvals)
         self.height = max (yvals)
 
+    @property
+    def start_point (self):
+        return (self.x, self.y)
+
+    @property
+    def end_point (self):
+        if self.points[-1] == [0,0]:
+            return (self.x, self.y)
+        else:
+            return (self.x + self.points[-1][0], self.y + self.points[-1][1])
+
 @dataclass
 class Rectangle(Excalidraw_Element):
     def __post_init__(self):

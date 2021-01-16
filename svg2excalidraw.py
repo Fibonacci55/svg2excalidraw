@@ -3,6 +3,8 @@ import excalidraw_writer
 import jsonpickle
 from collections import UserDict
 from path_handler import PathHandler
+import dataclasses
+import copy
 
 import logging
 log = logging.getLogger('svg2excalidraw')
@@ -40,11 +42,14 @@ class Converter:
         self.elements = []
         self.path_handler = PathHandler()
         self.style_converter = SvgStyle2Excalidraw()
+        self.groups = []
 
     def visit_group(self, group):
         log.debug('visiting group')
+        self.groups.append(group.id)
         for el in group.group_elements:
             el.visit(self)
+        self.groups.pop()
 
     def visit_rectangle(self, rectangle):
         log.debug('visiting rectangle')
@@ -54,20 +59,33 @@ class Converter:
                                         y=int(float(rectangle.y)),
                                         width=int(float(rectangle.width)),
                                         height=int(float(rectangle.height)),
+                                        groupIds=copy.deepcopy(self.groups),
                                         **style)
 
         self.elements.append(r)
 
     def visit_path(self, path):
         log.debug('visiting path %s %s' % (path.id, path.path_data))
-        self.path_handler(path.path_data)
         style = self.style_converter(path.style)
-        line = excalidraw_writer.Line(id=path.id,
-                                      x=self.path_handler.x,
-                                      y=self.path_handler.y,
-                                      points=self.path_handler.points,
-                                      **style)
-        self.elements.append(line)
+        #line = excalidraw_writer.Line(id=path.id,
+        #                              x=self.path_handler.x,
+        #                              y=self.path_handler.y,
+        #                              points=self.path_handler.points,
+        #                              **style)
+        line_list = self.path_handler(path.path_data)
+        if len(line_list) > 1:
+            self.groups.append ('g_%s' % path.id)
+            for i, l in enumerate(line_list):
+                nl = dataclasses.replace(l, id='%s_%s' % (path.id, i),
+                                         groupIds=copy.deepcopy(self.groups),
+                                         **style)
+                self.elements.append(nl)
+            self.groups.pop()
+        else:
+            nl = dataclasses.replace(line_list[0], id=path.id,
+                                     groupIds=copy.deepcopy(self.groups),
+                                     **style)
+            self.elements.append(nl)
 
     def convert(self, svg_elements):
 
@@ -77,7 +95,7 @@ class Converter:
 
 if __name__ == '__main__':
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
-    # filename = 'D:\\Projects\\SVG2Excalidraw\\sample3.svg'
+    #filename = 'D:\\Projects\\svg2excalidraw\\test\\sample3.svg'
     logging.basicConfig(level=logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
     log.addFilter(logging.Filter(name='svg2excalidraw'))
