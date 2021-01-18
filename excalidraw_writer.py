@@ -17,20 +17,20 @@ class Excalidraw_Element:
     width: float = 0.0
     height: float = 0.0
     angle: float = 0.0
-    strokeColor: str = field (default='#000000')
-    backgroundColor: str = field (default='transparent')
+    strokeColor: str = field(default='#000000')
+    backgroundColor: str = field(default='transparent')
     fillStyle: str = field(default='solid')
-    strokeWidth: int = field (default=1)
-    strokeStyle: str = field (default='solid')
-    roughness: int = field (default=3)
-    opacity: int = field (default=100)
-    groupIds: List = field (default_factory=list)
-    strokeSharpness: str = field (default='sharp')
+    strokeWidth: int = field(default=1)
+    strokeStyle: str = field(default='solid')
+    roughness: int = field(default=3)
+    opacity: int = field(default=100)
+    groupIds: List = field(default_factory=list)
+    strokeSharpness: str = field(default='sharp')
     seed: int = 1234567
     version: int = field(default=316)
     versionNonce: int = 0
-    isDeleted: bool = field (default=False)
-    boundElementIds: list = field (default_factory=list)
+    isDeleted: bool = field(default=False)
+    boundElementIds: list = field(default_factory=list)
     lastCommittedPoint: str = None
     startBinding: str = None
     endBinding: str = None
@@ -40,15 +40,19 @@ class Excalidraw_Element:
 @dataclass
 class Line (Excalidraw_Element):
 
-    points : List = field (default_factory=list)
+    points : List = field(default_factory=list)
+    from_init : bool = True
 
     def __post_init__(self):
-        log.debug("%s" % self.points)
+        log.debug("Line::__post_init__ %s" % self.points)
         self.type = 'line'
-        xvals = [e[0] for e in self.points]
-        yvals = [e[1] for e in self.points]
-        self.width = max (xvals)
-        self.height = max (yvals)
+        if self.from_init:
+            self.points = [[v[0] - self.x, v[1] - self.y] for v in self.points]
+        log.debug("Line::__post_init__ corrected %s" % self.points)
+        xvals = [abs(e[0]) for e in self.points]
+        yvals = [abs(e[1]) for e in self.points]
+        self.width = max(xvals)
+        self.height = max(yvals)
 
     @property
     def start_point (self):

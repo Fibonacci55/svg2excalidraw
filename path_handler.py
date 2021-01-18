@@ -1,35 +1,11 @@
 import abc
 import re
 from excalidraw_writer import Line
+from path_common import Point
 
 import logging
 log = logging.getLogger('svg2excalidraw')
 
-from collections import UserList
-
-class Point(UserList):
-    
-    def __init__(self, x, y):
-        if (x != None) and (y != None):
-            super(Point, self).__init__([round(x),round(y)])
-        else:
-            super(Point, self).__init__([])
-
-    @property
-    def x(self):
-        return self.data[0]
-
-    @x.setter
-    def x(self, x):
-        self.data[0] = x
-
-    @property
-    def y(self):
-        return self.data[1]
-
-    @y.setter
-    def y(self, y):
-        self.data[1] = y
 
 
 class PathCommand(abc.ABC):
@@ -60,7 +36,6 @@ class RelativeMove(PathCommand):
         super().__init__(param_list)
 
     def execute(self, start_point):
-        point_list = [Point(0, 0)]
         m = self.num_pair.match(self.param_list[0])
         if not start_point:
             x = int(float(m.group('x')))
@@ -69,17 +44,19 @@ class RelativeMove(PathCommand):
             x = start_point.x + int(float(m.group('x')))
             y = start_point.y + int(float(m.group('y')))
 
+        point_list = [Point(x, y)]
+
         cur_x = x
         cur_y = y
         for p in self.param_list[1:]:
             m = self.num_pair.match(p)
             cur_x += int(float(m.group('x')))
             cur_y += int(float(m.group('y')))
-            point = Point(cur_x - x, cur_y - y)
+            point = Point(cur_x, cur_y)
             point_list.append(point)
 
         if self.closed:
-            point_list.append(Point(0,0))
+            point_list.append(Point(x,y))
 
         line = Line (x=x, y=y, points=point_list)
         return line
@@ -91,10 +68,10 @@ class AbsoluteMove(PathCommand):
         super().__init__(param_list)
 
     def execute(self, start_point):
-        point_list = [Point(0, 0)]
         m = self.num_pair.match(self.param_list[0])
         x = int(float(m.group('x')))
         y = int(float(m.group('y')))
+        point_list = [Point(x, y)]
 
         cur_x = x
         cur_y = y
@@ -102,13 +79,13 @@ class AbsoluteMove(PathCommand):
             m = self.num_pair.match(p)
             cur_x = int(float(m.group('x')))
             cur_y = int(float(m.group('y')))
-            point = Point(cur_x - x, cur_y - y)
+            point = Point(cur_x, cur_y)
             point_list.append(point)
 
         if self.closed:
-            point_list.append(Point(0,0))
+            point_list.append(Point(x,y))
 
-        line = Line (x=x, y=y, points=point_list)
+        line = Line(x=x, y=y, points=point_list)
         return line
 
 class ClosePath(PathCommand):
@@ -177,7 +154,7 @@ class PathHandler:
         self.current_point = Point(None, None)
         sub_path_list = []
         for cmd in cmd_list:
-            sub_path = cmd.execute (self.current_point)
+            sub_path = cmd.execute(self.current_point)
             sub_path_list.append(sub_path)
             self.current_point = Point(sub_path.end_point[0], sub_path.end_point[1])
 

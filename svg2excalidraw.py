@@ -23,7 +23,7 @@ class SvgStyle2Excalidraw(UserDict):
         super().__init__()
 
         self.data['fill'] = ('backgroundColor', lambda x: x)
-        self.data['fill-opacity'] = ('opacity', lambda x: 100 * x)
+        self.data['fill-opacity'] = ('opacity', lambda x: 100 * int(x))
         self.data['stroke-width'] = ('strokeWidth', conv_width)
 
     def __call__(self, svg_style):
@@ -84,7 +84,8 @@ class Converter:
         else:
             nl = dataclasses.replace(line_list[0], id=path.id,
                                      groupIds=copy.deepcopy(self.groups),
-                                     **style)
+                                     **style,
+                                     from_init=False)
             self.elements.append(nl)
 
     def convert(self, svg_elements):
