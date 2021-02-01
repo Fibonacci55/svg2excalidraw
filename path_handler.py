@@ -96,6 +96,38 @@ class ClosePath(PathCommand):
     def execute(self, start_point):
         pass
 
+
+class RelativeCubicBezier(PathCommand):
+
+    def __init__(self, param_list):
+        super().__init__(param_list)
+
+
+    def execute(self, start_point):
+        pass
+
+
+class VerticalLine(PathCommand):
+
+    def __init__(self, param_list, relative=True):
+        super().__init__(param_list)
+        self.relative = relative
+
+    def execute(self, start_point):
+        pass
+
+class HorzontalLine(PathCommand):
+
+    def __init__(self, param_list, relative=True):
+        super().__init__(param_list)
+        self.relative = relative
+
+    def execute(self, start_point):
+        pass
+
+
+
+
 class PathHandler:
 
 
@@ -120,6 +152,8 @@ class PathHandler:
             c = RelativeMove(cmd_param_list)
         elif cmd_str == 'M':
             c = AbsoluteMove(cmd_param_list)
+        elif cmd_str == 'v':
+            c = VerticalLine()
 
         return c
 

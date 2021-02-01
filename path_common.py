@@ -53,12 +53,12 @@ if __name__ == '__main__':
 
     points = cubic_bezier(p0, p1, p2, p3, 10)
 
-    l = Line(points=points, id='L1', groupIds=['G1'])
+    l = Line(x=p0.x, y=p0.y, points=points, id='L1', groupIds=['G1'])
 
     painting = Excalidraw_Painting(elements=[l])
     pickl_painting = jsonpickle.encode(painting, unpicklable=False, indent=3)
 
-    outf_name = 'D:\\Projects\\svg2excalidraw\\test.excalidraw'
+    outf_name = 'D:\\Projects\\svg2excalidraw\\bezier.excalidraw'
 
     outf = open(outf_name, 'w')
     outf.write(pickl_painting)

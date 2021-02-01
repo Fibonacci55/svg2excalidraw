@@ -96,6 +96,7 @@ class Converter:
 
 if __name__ == '__main__':
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
+    filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-8.svg'
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\sample3.svg'
     logging.basicConfig(level=logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
@@ -108,7 +109,7 @@ if __name__ == '__main__':
     print("====================")
     c.convert(w.g.group_elements)
 
-    outf_name = 'D:\\Projects\\SVG2Excalidraw\\test1.excalidraw'
+    outf_name = 'D:\\Projects\\SVG2Excalidraw\\test2.excalidraw'
     painting = excalidraw_writer.Excalidraw_Painting(elements=c.elements)
     pickl_painting = jsonpickle.encode(painting, unpicklable=False, indent=3)
     outf = open(outf_name, 'w')
