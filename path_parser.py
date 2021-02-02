@@ -6,7 +6,7 @@ Created on Mon Jan 25 09:31:42 2021
 """
 
 from pyparsing import Literal, Word, OneOrMore, Optional, ZeroOrMore, Group, \
-    Forward, nums, oneOf, pyparsing_common
+    Forward, nums, oneOf, pyparsing_common, Dict
 
 def parse_action(tokens):
     print ('parse_action:', tokens)
@@ -34,7 +34,7 @@ comma_wsp.setName('comma_wsp')
 coordinate = real_num
 coordinate.setName('coordinate')
 
-coordinate_pair = coordinate + Optional(comma_wsp).suppress() + coordinate
+coordinate_pair = coordinate.setName('x') + Optional(comma_wsp).suppress() + coordinate.setName('y')
 coordinate_pair.setName('coordinate pair')
 
 coordinate_pair_double = coordinate_pair + Optional(comma_wsp) + coordinate_pair
