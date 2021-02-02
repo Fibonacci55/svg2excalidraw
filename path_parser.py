@@ -8,8 +8,16 @@ Created on Mon Jan 25 09:31:42 2021
 from pyparsing import Literal, Word, OneOrMore, Optional, ZeroOrMore, Group, \
     Forward, nums, oneOf, pyparsing_common, Dict
 
+from path_common import Point
+
 def parse_action(tokens):
     print ('parse_action:', tokens)
+    
+def coord_pair(tokens):
+    print ('coord_pair', tokens)
+    p = Point(float(tokens[0]), float(tokens[1]))
+    return p
+    
 
 sign = oneOf("+ -")
 sign.setName('sign')
@@ -36,6 +44,7 @@ coordinate.setName('coordinate')
 
 coordinate_pair = coordinate.setName('x') + Optional(comma_wsp).suppress() + coordinate.setName('y')
 coordinate_pair.setName('coordinate pair')
+coordinate_pair.setParseAction(coord_pair)
 
 coordinate_pair_double = coordinate_pair + Optional(comma_wsp) + coordinate_pair
 coordinate_pair_double.setName('coordinate pair double')
@@ -49,7 +58,6 @@ coordinate_squence = coordinate | coordinate + Optional(comma_wsp) + coordinate_
 coordinate_pair_sequence = Forward()
 coordinate_pair_sequence <<= coordinate_pair + Optional(wsp) + coordinate_pair_sequence | coordinate_pair
 coordinate_pair_sequence.setName('coordinate pair sequence')
-
 
 curveto_coordinate_sequence = Forward()
 curveto_coordinate_sequence <<= (coordinate_pair_triplet + Optional(comma_wsp) + curveto_coordinate_sequence) | coordinate_pair_triplet
