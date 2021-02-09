@@ -8,16 +8,25 @@ Created on Mon Jan 25 09:31:42 2021
 from pyparsing import Literal, Word, OneOrMore, Optional, ZeroOrMore, Group, \
     Forward, nums, oneOf, pyparsing_common, Dict
 
+from path_commands import Command_Factory
+
 from path_common import Point
 
 def parse_action(tokens):
-    print ('parse_action:', tokens)
+    print('parse_action:', tokens)
     
-def coord_pair(tokens):
-    print ('coord_pair', tokens)
+def make_coord_pair(tokens):
+    #print('coord_pair', tokens)
     p = Point(float(tokens[0]), float(tokens[1]))
     return p
-    
+
+def make_coordinate_pair_double (tokens):
+    #print(tokens)
+    return [Point(float(tokens[0]), float(tokens[1])),Point(float(tokens[2]), float(tokens[3]))]
+
+def make_coordinate_pair_triple (tokens):
+    #print(tokens)
+    return [tokens[0], tokens[1], tokens[2]]
 
 sign = oneOf("+ -")
 sign.setName('sign')
@@ -38,19 +47,20 @@ comma_wsp = Group(OneOrMore(wsp) + Optional(',') + ZeroOrMore(wsp)) | \
             Group("," + ZeroOrMore(wsp))
 comma_wsp.setName('comma_wsp')
 
-#coordinate = Optional(sign) + real_num
 coordinate = real_num
 coordinate.setName('coordinate')
 
 coordinate_pair = coordinate.setName('x') + Optional(comma_wsp).suppress() + coordinate.setName('y')
 coordinate_pair.setName('coordinate pair')
-coordinate_pair.setParseAction(coord_pair)
+coordinate_pair.setParseAction(make_coord_pair)
 
-coordinate_pair_double = coordinate_pair + Optional(comma_wsp) + coordinate_pair
+coordinate_pair_double = coordinate_pair + Optional(comma_wsp).suppress() + coordinate_pair
 coordinate_pair_double.setName('coordinate pair double')
+coordinate_pair_double.setParseAction(make_coordinate_pair_double)
 
 coordinate_pair_triplet = coordinate_pair + Optional(comma_wsp) + coordinate_pair + Optional(comma_wsp) + coordinate_pair
 coordinate_pair_triplet.setName('coordinate pair triplet')
+coordinate_pair_triplet.setParseAction(make_coordinate_pair_triple)
 
 coordinate_squence = Forward()
 coordinate_squence = coordinate | coordinate + Optional(comma_wsp) + coordinate_squence
@@ -60,7 +70,7 @@ coordinate_pair_sequence <<= coordinate_pair + Optional(wsp) + coordinate_pair_s
 coordinate_pair_sequence.setName('coordinate pair sequence')
 
 curveto_coordinate_sequence = Forward()
-curveto_coordinate_sequence <<= (coordinate_pair_triplet + Optional(comma_wsp) + curveto_coordinate_sequence) | coordinate_pair_triplet
+curveto_coordinate_sequence <<= (coordinate_pair_triplet + Optional(comma_wsp).suppress() + curveto_coordinate_sequence) | coordinate_pair_triplet
 curveto_coordinate_sequence.setName('curveto coordinate sequence')
 
 smooth_curveto_coordinate_sequence = Forward()
@@ -79,11 +89,11 @@ elliptical_arc_argument.setName('elliptical arc argument')
 elliptical_arc_argument_squence = Forward()
 elliptical_arc_argument_squence <<= (elliptical_arc_argument + Optional(comma_wsp) + elliptical_arc_argument_squence) | elliptical_arc_argument
 
-#############   draw commands  ###############
+#############  draw commands  ###############
 
 moveto = oneOf("m M") + ZeroOrMore(wsp) + coordinate_pair_sequence
 moveto.setName('moveto')
-moveto.setParseAction(parse_action)
+moveto.setParseAction(Command_Factory().make_cmd)
 
 closepath = oneOf("z Z")
 closepath.setName('closepath')
@@ -121,14 +131,12 @@ drawto_command = \
 
 
 drawto_command.setName('drawto_command')
-drawto_command.setParseAction(parse_action)
+drawto_command.setParseAction(Command_Factory().make_cmd)
 
 svg_path = Forward()
-#svg_path <<= ZeroOrMore(wsp) + Optional(moveto) + OneOrMore(moveto + OneOrMore(drawto_command)) | drawto_command
 svg_path <<= ZeroOrMore(wsp) + moveto + OneOrMore(Group(drawto_command | moveto)) | drawto_command
-#svg_path <<= ZeroOrMore(wsp) + (moveto + OneOrMore(svg_path)) | drawto_command
-#svg_path <<= ZeroOrMore(wsp) + Optional(moveto) + (drawto_command + ZeroOrMore(svg_path)) | drawto_command
-#svg_path <<= (drawto_command + svg_path) | drawto_command
+#svg_path.setParseAction(print)
+
 
 if __name__ == '__main__':
     pass

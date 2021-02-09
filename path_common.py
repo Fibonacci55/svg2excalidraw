@@ -26,6 +26,14 @@ class Point(UserList):
         self.data[1] = y
 
 
+    def __iadd__(self, other):
+        self.data[0] += other.x
+        self.data[1] += other.y
+
+    def __isub__(self, other):
+        self.data[0] -= other.x
+        self.data[1] -= other.y
+
 
 def cubic_bezier (p0, p1, p2, p3, steps):
 

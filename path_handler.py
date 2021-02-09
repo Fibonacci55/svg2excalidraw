@@ -1,193 +1,50 @@
-import abc
 import re
+import copy
+
 from excalidraw_writer import Line
 from path_common import Point
+from path_parser import svg_path
+from path_commands import Command_Factory, ClosePath
 
 import logging
 log = logging.getLogger('svg2excalidraw')
 
 
-
-class PathCommand(abc.ABC):
-
-    num_pair = re.compile('(?P<x>[0..9+-e]+),(?P<y>[0..9+-e]+)')
-
-    def __init__(self, param_list):
-        log.debug('%s::__init__: %s' % (self.__class__.__name__, param_list))
-
-        self.param_list = param_list
-        self.closed = False
-
-        if self.param_list[-1] in ['z', 'Z']:
-            self.param_list.pop()
-            self.closed = True
-
-    @abc.abstractmethod
-    def execute(self, start_point):
-        pass
-
-    def __str__(self):
-        return self.__class__.__name__
-
-
-class RelativeMove(PathCommand):
-
-    def __init__(self, param_list):
-        super().__init__(param_list)
-
-    def execute(self, start_point):
-        m = self.num_pair.match(self.param_list[0])
-        if not start_point:
-            x = int(float(m.group('x')))
-            y = int(float(m.group('y')))
-        else:
-            x = start_point.x + int(float(m.group('x')))
-            y = start_point.y + int(float(m.group('y')))
-
-        point_list = [Point(x, y)]
-
-        cur_x = x
-        cur_y = y
-        for p in self.param_list[1:]:
-            m = self.num_pair.match(p)
-            cur_x += int(float(m.group('x')))
-            cur_y += int(float(m.group('y')))
-            point = Point(cur_x, cur_y)
-            point_list.append(point)
-
-        if self.closed:
-            point_list.append(Point(x,y))
-
-        line = Line (x=x, y=y, points=point_list)
-        return line
-
-class AbsoluteMove(PathCommand):
-
-    def __init__(self, param_list):
-        log.debug('AbsoluteMove::__init__: %s' % param_list)
-        super().__init__(param_list)
-
-    def execute(self, start_point):
-        m = self.num_pair.match(self.param_list[0])
-        x = int(float(m.group('x')))
-        y = int(float(m.group('y')))
-        point_list = [Point(x, y)]
-
-        cur_x = x
-        cur_y = y
-        for p in self.param_list[1:]:
-            m = self.num_pair.match(p)
-            cur_x = int(float(m.group('x')))
-            cur_y = int(float(m.group('y')))
-            point = Point(cur_x, cur_y)
-            point_list.append(point)
-
-        if self.closed:
-            point_list.append(Point(x,y))
-
-        line = Line(x=x, y=y, points=point_list)
-        return line
-
-class ClosePath(PathCommand):
-
-    def __init__(self, param_list):
-        super().__init__(param_list)
-
-    def execute(self, start_point):
-        pass
-
-
-class RelativeCubicBezier(PathCommand):
-
-    def __init__(self, param_list):
-        super().__init__(param_list)
-
-
-    def execute(self, start_point):
-        pass
-
-
-class VerticalLine(PathCommand):
-
-    def __init__(self, param_list, relative=True):
-        super().__init__(param_list)
-        self.relative = relative
-
-    def execute(self, start_point):
-        pass
-
-class HorzontalLine(PathCommand):
-
-    def __init__(self, param_list, relative=True):
-        super().__init__(param_list)
-        self.relative = relative
-
-    def execute(self, start_point):
-        pass
-
-
-
-
 class PathHandler:
-
-
-    path_cmds = ['m', 'M', 'l', 'L', 'v', 'V',
-                 'h', 'H', 'c', 'C', 's', 'S',
-                 'q', 'Q', 't', 'T', 'a', 'A']
-    close_cmds = ['z', 'Z']
-
-    all_path_cmds = path_cmds + close_cmds
 
     def __init__(self):
         self.init()
 
     def init(self):
         self.points = []
+        self.cmd_list = []
         self.current_point = Point(None, None)
 
-    def make_cmd (self, cmd_str, cmd_param_list):
-        log.debug('Path_Handler::make_cmd')
-
-        if cmd_str == 'm':
-            c = RelativeMove(cmd_param_list)
-        elif cmd_str == 'M':
-            c = AbsoluteMove(cmd_param_list)
-        elif cmd_str == 'v':
-            c = VerticalLine()
-
-        return c
 
     def determine_sub_paths__(self, path_data):
 
-        path_elements = path_data.split(' ')
+        cmds = svg_path.parseString(path_data)
+        #print("determine_sub_paths", Command_Factory().command_list)
+        self.cmd_list = Command_Factory().command_list
 
-        cmd_list = []
-        cmd_str = path_elements[0]
-        param_lst = []
-        for el in path_elements[1:]:
-            if el in self.path_cmds:
-                cmd = self.make_cmd (cmd_str, param_lst)
-                cmd_list.append(cmd)
-                cmd_str = el
-                param_lst = []
-            else:
-                param_lst.append(el)
+    def handle_close_cmds__ (self):
 
-        if cmd_str:
-            cmd = self.make_cmd(cmd_str, param_lst)
-            cmd_list.append(cmd)
+        for i, c in enumerate(self.cmd_list):
+            if type(c) == ClosePath:
+               self.cmd_list[i-1].closed = True
 
-        return cmd_list
+        self.cmd_list = [c for c in self.cmd_list if type(c) != ClosePath]
 
     def __call__(self, path_data):
         log.debug('Path_Handler::__call__')
 
         self.init()
-        cmd_list = self.determine_sub_paths__(path_data)
+        self.determine_sub_paths__(path_data)
+        self.handle_close_cmds__()
 
         self.current_point = Point(None, None)
         sub_path_list = []
-        for cmd in cmd_list:
+        for cmd in self.cmd_list:
             sub_path = cmd.execute(self.current_point)
             sub_path_list.append(sub_path)
             self.current_point = Point(sub_path.end_point[0], sub_path.end_point[1])
