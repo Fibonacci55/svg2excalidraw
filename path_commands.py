@@ -1,4 +1,6 @@
 import abc
+from excalidraw_writer import Line
+
 import logging
 log = logging.getLogger('svg2excalidraw')
 
@@ -11,10 +13,18 @@ class PathCommand(abc.ABC):
         self.param_list = param_list
         self.closed = False
         self.relative = ord(cmd) > 90     # lower case character
+        if self.relative:
+            self.advance = self.adv_absolute
+        else:
+            self.advance = self.adv_relative
 
 
-    def absolute__(self, start_point):
-        self.start_point = start_point
+    def adv_absolute(self, from_p, to_p):        
+        return to_p
+        
+    def adv_relative(self, from_p, to_p):
+        if from_p.x and from_p.y:
+            return from_p + to_p
 
     @abc.abstractmethod
     def execute(self, start_point):
@@ -27,12 +37,27 @@ class PathCommand(abc.ABC):
 class Move(PathCommand):
 
     def execute(self, start_point):
-        pass
+        point_list = []
+        cur_p = self.advance(start_point, self.param_list[0])
+        for p in self.param_list[1:]:
+            point_list.append(cur_p)
+            cur_p = self.advance(cur_p, p)
+        if self.closed:
+            point_list.append(point_list[0])
+        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
+        return line
 
-class ClosePath(PathCommand):
-
+class Lineto(PathCommand):
     def execute(self, start_point):
-        pass
+        point_list = []
+        cur_p = start_point
+        for p in self.param_list:
+            point_list.append(cur_p)
+            cur_p = self.advance(cur_p, p)
+        if self.closed:
+            point_list.append(point_list[0])
+        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
+        return line
 
 
 class RelativeCubicBezier(PathCommand):
@@ -66,7 +91,6 @@ class Command_Factory:
 
     command_list = []
 
-
     def __init__(self):
         command_list = []
 
@@ -85,7 +109,8 @@ class Command_Factory:
             c = CurveTo(cmd_str, token_list[1:])
         elif cmd_str in ['z', 'Z']:
             c = ClosePath(cmd_str, token_list[1:])
-
+        elif cmd_str in ['l', 'L']:
+            c = Lineto(cmd_str, token_list[1:])
         self.command_list.append(c)
 
         return c
