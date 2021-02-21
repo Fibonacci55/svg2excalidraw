@@ -1,3 +1,5 @@
+import logging
+log = logging.getLogger('path_common')
 
 from collections import UserList
 
@@ -11,7 +13,11 @@ class Point(UserList):
 
     @property
     def x(self):
-        return self.data[0]
+        if len(self.data) > 0:
+
+            return self.data[0]
+        else:
+            return None
 
     @x.setter
     def x(self, x):
@@ -19,7 +25,10 @@ class Point(UserList):
 
     @property
     def y(self):
-        return self.data[1]
+        if len(self.data) > 0:
+            return self.data[1]
+        else:
+            return None
 
     @y.setter
     def y(self, y):
@@ -34,6 +43,11 @@ class Point(UserList):
         self.data[0] -= other.x
         self.data[1] -= other.y
 
+    def __add__(self, other):
+        return Point(self.data[0] + other.x, self.data[1] + other.y)
+
+    def __sub__(self, other):
+        return Point(self.data[0] - other.x, self.data[1] - other.y)
 
 def cubic_bezier (p0, p1, p2, p3, steps):
 

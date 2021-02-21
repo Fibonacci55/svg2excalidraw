@@ -2,7 +2,7 @@ import abc
 from excalidraw_writer import Line
 
 import logging
-log = logging.getLogger('svg2excalidraw')
+log = logging.getLogger('path_commands')
 
 
 class PathCommand(abc.ABC):
@@ -12,19 +12,22 @@ class PathCommand(abc.ABC):
 
         self.param_list = param_list
         self.closed = False
-        self.relative = ord(cmd) > 90     # lower case character
-        if self.relative:
-            self.advance = self.adv_absolute
-        else:
+        if ord(cmd) > 90:
+            self.relative = True
             self.advance = self.adv_relative
+        else:
+            self.relative = False
+            self.advance = self.adv_absolute
 
 
-    def adv_absolute(self, from_p, to_p):        
+    def adv_absolute(self, from_p, to_p):
         return to_p
         
     def adv_relative(self, from_p, to_p):
         if from_p.x and from_p.y:
             return from_p + to_p
+        else:
+            return to_p
 
     @abc.abstractmethod
     def execute(self, start_point):
@@ -42,6 +45,7 @@ class Move(PathCommand):
         for p in self.param_list[1:]:
             point_list.append(cur_p)
             cur_p = self.advance(cur_p, p)
+        point_list.append(cur_p)
         if self.closed:
             point_list.append(point_list[0])
         line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)

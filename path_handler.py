@@ -7,7 +7,7 @@ from path_parser import svg_path
 from path_commands import Command_Factory, ClosePath
 
 import logging
-log = logging.getLogger('svg2excalidraw')
+log = logging.getLogger('path_handler')
 
 
 class PathHandler:

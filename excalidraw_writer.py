@@ -6,6 +6,9 @@ from typing import List, Dict
 
 import jsonpickle
 
+import logging
+log = logging.getLogger('excalidraw_writer')
+
 @dataclass
 class Excalidraw_Element:
 
