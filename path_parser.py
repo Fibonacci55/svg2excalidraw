@@ -49,6 +49,7 @@ comma_wsp.setName('comma_wsp')
 
 coordinate = real_num
 coordinate.setName('coordinate')
+coordinate.setParseAction(lambda tokens: float(tokens[0]))
 
 coordinate_pair = coordinate.setName('x') + Optional(comma_wsp).suppress() + coordinate.setName('y')
 coordinate_pair.setName('coordinate pair')

@@ -6,9 +6,8 @@ from path_handler import PathHandler
 import dataclasses
 import copy
 
-import logging
-log = logging.getLogger('svg2excalidraw')
-
+import svg2exc_logging
+log = svg2exc_logging.getLogger('svg2excalidraw')
 
 class SvgStyle2Excalidraw(UserDict):
 
@@ -45,11 +44,12 @@ class Converter:
         self.groups = []
 
     def visit_group(self, group):
-        log.debug('visiting group')
+        log.debug('>>>>> {}'.format(group.id))
         self.groups.append(group.id)
         for el in group.group_elements:
             el.visit(self)
         self.groups.pop()
+        log.debug('<<<<< {}'.format(group.id))
 
     def visit_rectangle(self, rectangle):
         log.debug('visiting rectangle')
@@ -65,13 +65,8 @@ class Converter:
         self.elements.append(r)
 
     def visit_path(self, path):
-        log.debug('visiting path %s %s' % (path.id, path.path_data))
+        log.debug('>>>>> {} {}'.format(path.id, path.path_data))
         style = self.style_converter(path.style)
-        #line = excalidraw_writer.Line(id=path.id,
-        #                              x=self.path_handler.x,
-        #                              y=self.path_handler.y,
-        #                              points=self.path_handler.points,
-        #                              **style)
         line_list = self.path_handler(path.path_data)
         if len(line_list) > 1:
             self.groups.append ('g_%s' % path.id)
@@ -88,6 +83,8 @@ class Converter:
                                      from_init=False)
             self.elements.append(nl)
 
+        log.debug('<<<<< {}'.format(path.id))
+
     def convert(self, svg_elements):
 
         for el in svg_elements:
@@ -97,10 +94,11 @@ class Converter:
 if __name__ == '__main__':
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
     filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-8.svg'
+    filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-22.svg'
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\sample3.svg'
-    logging.basicConfig(level=logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
-    log.addFilter(logging.Filter(name='svg2excalidraw'))
+    #logging.basicConfig(level=logging.DEBUG)
+    #formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
+    #log.addFilter(logging.Filter(name='svg2excalidraw'))
 
     w = svg_reader.My_Doc_Walker(filename)
     w.walk()

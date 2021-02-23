@@ -1,9 +1,9 @@
 import abc
 from excalidraw_writer import Line
+from path_common import Point
 
-import logging
-log = logging.getLogger('path_commands')
-
+import svg2exc_logging
+log = svg2exc_logging.getLogger('path_commands')
 
 class PathCommand(abc.ABC):
 
@@ -18,7 +18,6 @@ class PathCommand(abc.ABC):
         else:
             self.relative = False
             self.advance = self.adv_absolute
-
 
     def adv_absolute(self, from_p, to_p):
         return to_p
@@ -40,6 +39,7 @@ class PathCommand(abc.ABC):
 class Move(PathCommand):
 
     def execute(self, start_point):
+        log.info('start point {}'.format(start_point))
         point_list = []
         cur_p = self.advance(start_point, self.param_list[0])
         for p in self.param_list[1:]:
@@ -49,6 +49,7 @@ class Move(PathCommand):
         if self.closed:
             point_list.append(point_list[0])
         line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
+        log.info ('line {}'.format(line))
         return line
 
 class Lineto(PathCommand):
@@ -58,6 +59,7 @@ class Lineto(PathCommand):
         for p in self.param_list:
             point_list.append(cur_p)
             cur_p = self.advance(cur_p, p)
+        point_list.append(cur_p)
         if self.closed:
             point_list.append(point_list[0])
         line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
@@ -73,12 +75,30 @@ class RelativeCubicBezier(PathCommand):
 class VerticalLine(PathCommand):
 
     def execute(self, start_point):
-        pass
+        point_list = []
+        cur_p = start_point
+        for p in self.param_list:
+            point_list.append(cur_p)
+            cur_p = self.advance(cur_p, Point(0, p))
+        point_list.append(cur_p)
+        if self.closed:
+            point_list.append(point_list[0])
+        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
+        return line
 
 class HorzontalLine(PathCommand):
 
     def execute(self, start_point):
-        pass
+        point_list = []
+        cur_p = start_point
+        for p in self.param_list:
+            point_list.append(cur_p)
+            cur_p = self.advance(cur_p, Point(p, 0))
+        point_list.append(cur_p)
+        if self.closed:
+            point_list.append(point_list[0])
+        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
+        return line
 
 class CurveTo(PathCommand):
 
@@ -99,10 +119,14 @@ class Command_Factory:
         command_list = []
 
     @classmethod
+    def clear_cmd_list(cls):
+        cls.command_list = []
+
+    @classmethod
     def make_cmd(self, token_list):
 
         cmd_str = token_list[0]
-        print ('make_cmd', cmd_str)
+        log.info('command {}'.format(cmd_str))
         if cmd_str in ['m', 'M']:
             c = Move(cmd_str, token_list[1:])
         elif cmd_str in ['v', 'V']:
