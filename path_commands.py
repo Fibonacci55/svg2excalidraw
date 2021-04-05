@@ -39,31 +39,23 @@ class PathCommand(abc.ABC):
 class Move(PathCommand):
 
     def execute(self, start_point):
-        #log.info('start point {}'.format(start_point))
         point_list = []
         cur_p = self.advance(start_point, self.param_list[0])
         for p in self.param_list[1:]:
             point_list.append(cur_p)
             cur_p = self.advance(cur_p, p)
         point_list.append(cur_p)
-        if self.closed:
-            point_list.append(point_list[0])
-        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
-        #log.info ('line {}'.format(line))
-        return line
+        return point_list #line
 
 class Lineto(PathCommand):
     def execute(self, start_point):
         point_list = []
         cur_p = start_point
         for p in self.param_list:
-            point_list.append(cur_p)
             cur_p = self.advance(cur_p, p)
-        point_list.append(cur_p)
-        if self.closed:
-            point_list.append(point_list[0])
-        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
-        return line
+            point_list.append(cur_p)
+        #point_list.append(cur_p)
+        return point_list #line
 
 
 class RelativeCubicBezier(PathCommand):
@@ -78,13 +70,10 @@ class VerticalLine(PathCommand):
         point_list = []
         cur_p = start_point
         for p in self.param_list:
-            point_list.append(cur_p)
             cur_p = self.advance(cur_p, Point(0, p))
-        point_list.append(cur_p)
-        if self.closed:
-            point_list.append(point_list[0])
-        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
-        return line
+            point_list.append(cur_p)
+        #point_list.append(cur_p)
+        return point_list #line
 
 class HorizontalLine(PathCommand):
 
@@ -92,13 +81,11 @@ class HorizontalLine(PathCommand):
         point_list = []
         cur_p = start_point
         for p in self.param_list:
-            point_list.append(cur_p)
             cur_p = self.advance(cur_p, Point(p, 0))
-        point_list.append(cur_p)
-        if self.closed:
-            point_list.append(point_list[0])
-        line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
-        return line
+            point_list.append(cur_p)
+
+        #point_list.append(cur_p)
+        return point_list #line
 
 class CurveTo(PathCommand):
 

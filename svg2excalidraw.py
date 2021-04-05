@@ -93,8 +93,8 @@ class Converter:
 
 if __name__ == '__main__':
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
-    filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-8.svg'
-    filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-22.svg'
+    #filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-8.svg'
+    #filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-22.svg'
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\sample3.svg'
     #logging.basicConfig(level=logging.DEBUG)
     #formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")

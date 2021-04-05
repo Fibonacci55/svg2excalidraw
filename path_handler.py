@@ -4,7 +4,7 @@ import copy
 from excalidraw_writer import Line
 from path_common import Point
 from path_parser import svg_path
-from path_commands import Command_Factory, ClosePath
+from path_commands import Command_Factory, ClosePath, Move
 
 import svg2exc_logging
 log = svg2exc_logging.getLogger('path_handler')
@@ -31,11 +31,13 @@ class PathHandler:
         cur_sub_path = []
         self.sub_path_list = []
         for c in self.cmd_list[1:]:
-            if c.__name__ == 'Move':
+            if c.__class__.__name__ == 'Move':
                 self.sub_path_list.append(cur_sub_path)
                 cur_sub_path = [c]
             else:
                 cur_sub_path.append(c)
+        self.sub_path_list.append(cur_sub_path)
+        self.sub_path_list[0].insert(0, self.cmd_list[0])
         log.debug('cmd list {}'.format(self.cmd_list))
         log.info('<<<<< ')
 
@@ -46,27 +48,33 @@ class PathHandler:
                 if type(c) == ClosePath:
                    self.cmd_list[i-1].closed = True
 
-        self.cmd_list = [c for c in self.cmd_list if type(c) != ClosePath]
+        #self.cmd_list = [c for c in self.cmd_list if type(c) != ClosePath]
 
     def __call__(self, path_data):
         log.debug('>>>>>')
 
         self.init()
         self.determine_sub_paths__(path_data)
-        self.handle_close_cmds__()
+        #self.handle_close_cmds__()
 
         self.current_point = Point(None, None)
-        sub_path_list = []
-        for cmd in self.cmd_list:
-            sub_path = cmd.execute(self.current_point)
-            log.debug ('sub path {}'.format(sub_path))
-            sub_path_list.append(sub_path)
-            self.current_point = Point(sub_path.end_point[0], sub_path.end_point[1])
-            log.debug ('current point {}'.format(self.current_point))
+        line_list = []
+        for p in self.sub_path_list:
+            sub_path_point_list = []
+            for cmd in p:
+                if cmd.__class__.__name__ != 'ClosePath':
+                    sub_path_point_list += cmd.execute(self.current_point)
+                    self.current_point = sub_path_point_list[-1]
+                else:
+                    sub_path_point_list.append(sub_path_point_list[0])
+                log.debug ('sub path {}'.format(sub_path_point_list))
+                log.debug ('current point {}'.format(self.current_point))
+
+            line = Line(x=sub_path_point_list[0].x, y=sub_path_point_list[0].y, points=sub_path_point_list)
+            line_list.append(line)
 
         log.debug('<<<<<<')
-        return sub_path_list
-
+        return line_list
 
 
 if __name__ == '__main__':
