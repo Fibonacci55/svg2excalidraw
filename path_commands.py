@@ -39,7 +39,7 @@ class PathCommand(abc.ABC):
 class Move(PathCommand):
 
     def execute(self, start_point):
-        log.info('start point {}'.format(start_point))
+        #log.info('start point {}'.format(start_point))
         point_list = []
         cur_p = self.advance(start_point, self.param_list[0])
         for p in self.param_list[1:]:
@@ -49,7 +49,7 @@ class Move(PathCommand):
         if self.closed:
             point_list.append(point_list[0])
         line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
-        log.info ('line {}'.format(line))
+        #log.info ('line {}'.format(line))
         return line
 
 class Lineto(PathCommand):
@@ -86,7 +86,7 @@ class VerticalLine(PathCommand):
         line = Line(x=point_list[0].x, y=point_list[0].y, points=point_list)
         return line
 
-class HorzontalLine(PathCommand):
+class HorizontalLine(PathCommand):
 
     def execute(self, start_point):
         point_list = []
@@ -132,7 +132,7 @@ class Command_Factory:
         elif cmd_str in ['v', 'V']:
             c = VerticalLine(cmd_str, token_list[1:])
         elif cmd_str in ['h', 'H']:
-            c = HorzontalLine(cmd_str, token_list[1:])
+            c = HorizontalLine(cmd_str, token_list[1:])
         elif cmd_str in ['c', 'C']:
             c = CurveTo(cmd_str, token_list[1:])
         elif cmd_str in ['z', 'Z']:

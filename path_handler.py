@@ -18,6 +18,7 @@ class PathHandler:
     def init(self):
         self.points = []
         self.cmd_list = []
+        self.sub_path_list = []
         self.current_point = Point(None, None)
 
 
@@ -27,14 +28,23 @@ class PathHandler:
         Command_Factory().clear_cmd_list()
         cmds = svg_path.parseString(path_data)
         self.cmd_list = Command_Factory().command_list
+        cur_sub_path = []
+        self.sub_path_list = []
+        for c in self.cmd_list[1:]:
+            if c.__name__ == 'Move':
+                self.sub_path_list.append(cur_sub_path)
+                cur_sub_path = [c]
+            else:
+                cur_sub_path.append(c)
         log.debug('cmd list {}'.format(self.cmd_list))
         log.info('<<<<< ')
 
     def handle_close_cmds__ (self):
 
-        for i, c in enumerate(self.cmd_list):
-            if type(c) == ClosePath:
-               self.cmd_list[i-1].closed = True
+        for p in self.sub_path_list:
+            for i, c in enumerate(p):
+                if type(c) == ClosePath:
+                   self.cmd_list[i-1].closed = True
 
         self.cmd_list = [c for c in self.cmd_list if type(c) != ClosePath]
 
@@ -61,16 +71,10 @@ class PathHandler:
 
 if __name__ == '__main__':
 
-    p = Point(1,1)
+    ho = "m4673.6 4123h-250.5v-250.5l250.5 250.5z"
 
-    l = p
-    print (l)
-    p.x = 3
-    print (l)
+    p = PathHandler()
 
-    p= Point(None, None)
+    result = p(ho)
+    print (result)
 
-    if p:
-        print ('Has values')
-    else:
-        print ('Has no values')

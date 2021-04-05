@@ -166,5 +166,5 @@ if __name__ == '__main__':
     #result = moveto.parseString(mm)
     #print(result)
 
-    result = svg_path.parseString(co) #, parseAll=True)c    #print(result)
-    # print (coordinate_pair.parseString(cp))
+    result = svg_path.parseString(ho) #, parseAll=True)c    #print(result)
+    print (result)
