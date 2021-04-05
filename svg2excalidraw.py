@@ -5,6 +5,8 @@ from collections import UserDict
 from path_handler import PathHandler
 import dataclasses
 import copy
+from glob import glob
+from pathlib import Path
 
 import svg2exc_logging
 log = svg2exc_logging.getLogger('svg2excalidraw')
@@ -91,8 +93,30 @@ class Converter:
             el.visit(self)
 
 
+def convert (inpath, outpath):
+
+    for filename in inpath.glob('*.svg'):
+        w = svg_reader.My_Doc_Walker(filename)
+        w.walk()
+
+        c = Converter()
+        c.convert(w.elements)
+
+        outf_name = outpath.joinpath(filename.stem + '.excalidraw')
+        painting = excalidraw_writer.Excalidraw_Painting(elements=c.elements)
+        pickl_painting = jsonpickle.encode(painting, unpicklable=False, indent=3)
+        outf = open(outf_name, 'w')
+        outf.write(pickl_painting)
+        outf.close()
+
+
 if __name__ == '__main__':
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
+    filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram\\Tangram 002 Nevit.svg'
+
+    inpath = Path('D:\\Projects\\svg2excalidraw\\test\\tangram')
+    outpath = Path('D:\\Projects\\svg2excalidraw\\test\\tangram_out')
+
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-8.svg'
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-22.svg'
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\sample3.svg'
@@ -100,16 +124,5 @@ if __name__ == '__main__':
     #formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
     #log.addFilter(logging.Filter(name='svg2excalidraw'))
 
-    w = svg_reader.My_Doc_Walker(filename)
-    w.walk()
 
-    c = Converter()
-    print("====================")
-    c.convert(w.g.group_elements)
-
-    outf_name = 'D:\\Projects\\SVG2Excalidraw\\test2.excalidraw'
-    painting = excalidraw_writer.Excalidraw_Painting(elements=c.elements)
-    pickl_painting = jsonpickle.encode(painting, unpicklable=False, indent=3)
-    outf = open(outf_name, 'w')
-    outf.write(pickl_painting)
-    outf.close()
+    convert(inpath, outpath)

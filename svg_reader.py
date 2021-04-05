@@ -68,7 +68,8 @@ class SVG_Doc_Walker_Base:
 
     def __init__(self, filename='', tree=None):
         if filename:
-            self.tree = etree.parse (filename)
+            infile = open (filename, 'r')
+            self.tree = etree.parse (infile)
         elif tree:
             self.tree = tree
         else:
@@ -103,10 +104,12 @@ class My_Doc_Walker (SVG_Doc_Walker_Base):
         self.group_stack = []
         self.group_ids = []
         self.g = None
+        self.elements = []
 
     def start_g(self, svg_group):
         if not self.g:
             self.g = Group(svg_group, self.group_ids)
+            self.elements.append(self.g)
         else:
            self.group_stack.append(self.g)
            self.g = Group(svg_group, self.group_ids)
@@ -122,10 +125,17 @@ class My_Doc_Walker (SVG_Doc_Walker_Base):
 
     def start_path(self, svg_path):
         log.debug('starting path %s' % svg_path.attrib['id'])
-        self.g.add_element(Path(svg_path, self.group_ids))
+        if len(self.group_stack) == 0:
+            self.elements.append(Path(svg_path, self.group_ids))
+        else:
+            self.g.add_element(Path(svg_path, self.group_ids))
 
     def start_rect (self, svg_path):
-        self.g.add_element(Rectangle(svg_path, self.group_ids))
+        if len(self.group_stack) == 0:
+            self.elements.append(Rectangle(svg_path, self.group_ids))
+        else:
+            self.g.add_element(Rectangle(svg_path, self.group_ids))
+
 
 
 if __name__ == '__main__':
