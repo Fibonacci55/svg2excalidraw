@@ -114,8 +114,8 @@ if __name__ == '__main__':
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram-15.svg'
     filename = 'D:\\Projects\\svg2excalidraw\\test\\tangram\\Tangram 002 Nevit.svg'
 
-    inpath = Path('D:\\Projects\\svg2excalidraw\\test\\tangram')
-    outpath = Path('D:\\Projects\\svg2excalidraw\\test\\tangram_out')
+    #inpath = Path('D:\\Projects\\svg2excalidraw\\test\\tangram')
+    #outpath = Path('D:\\Projects\\svg2excalidraw\\test\\tangram_out')
 
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-8.svg'
     #filename = 'D:\\Projects\\svg2excalidraw\\test\\yves-guillou-tangram-22.svg'
@@ -124,5 +124,7 @@ if __name__ == '__main__':
     #formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
     #log.addFilter(logging.Filter(name='svg2excalidraw'))
 
+    inpath = Path('D:\\Projects\\Maze')
+    outpath = Path('D:\\Projects\\Maze')
 
     convert(inpath, outpath)
