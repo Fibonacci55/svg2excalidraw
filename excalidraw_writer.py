@@ -3,6 +3,7 @@ import json
 import logging as log
 from dataclasses import dataclass, field
 from typing import List, Dict
+from random import randint
 
 import jsonpickle
 
@@ -29,7 +30,7 @@ class Excalidraw_Element:
     opacity: int = field(default=100)
     groupIds: List = field(default_factory=list)
     strokeSharpness: str = field(default='sharp')
-    seed: int = 1234567
+    seed: int=0 #= randint(1000, 999999)
     version: int = field(default=316)
     versionNonce: int = 0
     isDeleted: bool = field(default=False)
@@ -54,8 +55,9 @@ class Line (Excalidraw_Element):
         log.debug("Line::__post_init__ corrected %s" % self.points)
         xvals = [abs(e[0]) for e in self.points]
         yvals = [abs(e[1]) for e in self.points]
-        self.width = max(xvals)
-        self.height = max(yvals)
+        #self.width = max(xvals)
+        #self.height = max(yvals)
+        self.seed = randint (1, 1234567)
 
     @property
     def start_point (self):
@@ -72,6 +74,7 @@ class Line (Excalidraw_Element):
 class Rectangle(Excalidraw_Element):
     def __post_init__(self):
         self.type = 'rectangle'
+        self.seed = randint(1000, 999999)
 
 @dataclass
 class Txt(Excalidraw_Element):

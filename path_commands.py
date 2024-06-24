@@ -23,10 +23,11 @@ class PathCommand(abc.ABC):
         return to_p
         
     def adv_relative(self, from_p, to_p):
-        if from_p.x and from_p.y:
-            return from_p + to_p
-        else:
-            return to_p
+        return from_p + to_p
+        #if from_p.x and from_p.y:
+        #    return from_p + to_p
+        #else:
+        #    return to_p
 
     @abc.abstractmethod
     def execute(self, start_point):

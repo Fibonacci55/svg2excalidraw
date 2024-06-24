@@ -124,7 +124,9 @@ if __name__ == '__main__':
     #formatter = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
     #log.addFilter(logging.Filter(name='svg2excalidraw'))
 
-    inpath = Path('D:\\Projects\\Maze')
-    outpath = Path('D:\\Projects\\Maze')
+    #inpath = Path('D:\\Projects\\Maze')
+    #outpath = Path('D:\\Projects\\Maze')
 
+    inpath = Path('D:\\Temp\\Yogi')
+    outpath = Path('D:\\Temp\\Yogi')
     convert(inpath, outpath)

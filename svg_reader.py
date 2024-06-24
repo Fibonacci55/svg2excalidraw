@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
     #tree = etree.parse(filename)
     #print(isinstance(tree.getroot(), objectify.ObjectifiedElement))
-    loggging.basicConfig(level=log.DEBUG)
+    log.basicConfig(level=log.DEBUG)
     #g = Group()
     #svg = etree.Element ("svg")
     #print (svg)
