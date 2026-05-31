@@ -1,18 +1,23 @@
+# path_commands.py
 import abc
 from excalidraw_writer import Line
 from path_common import Point
 
 import svg2exc_logging
+
 log = svg2exc_logging.getLogger('path_commands')
+
 
 class PathCommand(abc.ABC):
 
     def __init__(self, cmd, param_list):
-        log.debug('%s::__init__: %s' % (self.__class__.__name__, param_list))
+        log.debug(f'{self.__class__.__name__}::__init__: {param_list}')
 
         self.param_list = param_list
         self.closed = False
-        if ord(cmd) > 90:
+
+        # Suggestion 5: Replaced magic number 90 with .islower()
+        if cmd.islower():
             self.relative = True
             self.advance = self.adv_relative
         else:
@@ -21,14 +26,9 @@ class PathCommand(abc.ABC):
 
     def adv_absolute(self, from_p, to_p):
         return to_p
-        
+
     def adv_relative(self, from_p, to_p):
-        #print(type(from_p), type(to_p), from_p, to_p)
         return from_p + to_p
-        if from_p.x and from_p.y:
-            return from_p + to_p
-        else:
-            return to_p
 
     @abc.abstractmethod
     def execute(self, start_point):
@@ -47,26 +47,25 @@ class Move(PathCommand):
             point_list.append(cur_p)
             cur_p = self.advance(cur_p, p)
         point_list.append(cur_p)
-        return point_list #line
+        return point_list  # line
+
 
 class Lineto(PathCommand):
+
     def execute(self, start_point):
         point_list = []
         cur_p = start_point
         for p in self.param_list:
             cur_p = self.advance(cur_p, p)
             point_list.append(cur_p)
-        #point_list.append(cur_p)
-        return point_list #line
-
-
-class RelativeCubicBezier(PathCommand):
-
-    def execute(self, start_point):
-        pass
+        return point_list  # line
 
 
 class VerticalLine(PathCommand):
+
+    # Suggestion 2: Fixed absolute coordinate calculation to preserve X
+    def adv_absolute(self, from_p, to_p):
+        return Point(from_p.x, to_p.y)
 
     def execute(self, start_point):
         point_list = []
@@ -74,10 +73,14 @@ class VerticalLine(PathCommand):
         for p in self.param_list:
             cur_p = self.advance(cur_p, Point(0, p))
             point_list.append(cur_p)
-        #point_list.append(cur_p)
-        return point_list #line
+        return point_list  # line
+
 
 class HorizontalLine(PathCommand):
+
+    # Suggestion 2: Fixed absolute coordinate calculation to preserve Y
+    def adv_absolute(self, from_p, to_p):
+        return Point(to_p.x, from_p.y)
 
     def execute(self, start_point):
         point_list = []
@@ -85,37 +88,45 @@ class HorizontalLine(PathCommand):
         for p in self.param_list:
             cur_p = self.advance(cur_p, Point(p, 0))
             point_list.append(cur_p)
+        return point_list  # line
 
-        #point_list.append(cur_p)
-        return point_list #line
 
 class CurveTo(PathCommand):
 
     def execute(self, start_point):
-        pass
+        # Suggestion 6: Prevent returning None to avoid downstream iteration errors
+        log.warning("CurveTo execution is not fully implemented.")
+        return []
+
 
 class ClosePath(PathCommand):
 
     def execute(self, start_point):
-        pass
+        # Suggestion 6: Prevent returning None and properly flag closure
+        self.closed = True
+        return []
 
 
 class Command_Factory:
-
     command_list = []
 
     def __init__(self):
-        command_list = []
+        # Suggestion 4: Fixed variable scope (was a useless local variable)
+        self.command_list = []
 
     @classmethod
     def clear_cmd_list(cls):
         cls.command_list = []
 
     @classmethod
-    def make_cmd(self, token_list):
+    # Suggestion 4: Changed 'self' to 'cls' for classmethod
+    def make_cmd(cls, token_list):
+        if not token_list:
+            return None
 
         cmd_str = token_list[0]
-        log.info('command {}'.format(cmd_str))
+        log.info(f'command {cmd_str}')
+
         if cmd_str in ['m', 'M']:
             c = Move(cmd_str, token_list[1:])
         elif cmd_str in ['v', 'V']:
@@ -128,8 +139,12 @@ class Command_Factory:
             c = ClosePath(cmd_str, token_list[1:])
         elif cmd_str in ['l', 'L']:
             c = Lineto(cmd_str, token_list[1:])
-        self.command_list.append(c)
+        else:
+            # Suggestion 1: Fixed UnboundLocalError by handling unknown commands
+            log.warning(f"Unsupported command: {cmd_str}")
+            return None
 
+        cls.command_list.append(c)
         return c
 
 
@@ -137,7 +152,10 @@ if __name__ == '__main__':
 
     c = ClosePath('c', [])
     print(type(c))
-    if type(c) is ClosePath:
+
+    # Suggestion 7: Modernized type checking using isinstance
+    if isinstance(c, ClosePath):
         print('ClosePath')
     else:
         print('something else')
+# -----

@@ -1,0 +1,12 @@
+[project]
+name = "svg2excalidraw"
+version = "0.1.0"
+description = "Converting SVG files to excalidraw files"
+authors = ["Fibonacci55 <erik.margraf@gmail.com>"]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "jsonpickle>=4.1.2",
+    "loguru>=0.7.3",
+    "pydantic>=2.12.4",
+]
