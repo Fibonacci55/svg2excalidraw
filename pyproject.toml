@@ -1,12 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "svg2excalidraw"
 version = "0.1.0"
-description = "Converting SVG files to excalidraw files"
-authors = ["Fibonacci55 <erik.margraf@gmail.com>"]
+description = "Convert SVG files to Excalidraw JSON."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Your Name" }]
+keywords = ["svg", "excalidraw", "converter"]
 dependencies = [
-    "jsonpickle>=4.1.2",
-    "loguru>=0.7.3",
-    "pydantic>=2.12.4",
+  "jsonpickle>=3.0.0",
+  "lxml>=6.1.1",
+  "pyparsing>=3.3.2",
 ]
+
+# Creates a CLI command: `svg2excalidraw ...`
+# This assumes your main script is `svg2excalidraw.py` and contains `def main(): ...`
+[project.scripts]
+svg2excalidraw = "svg2excalidraw:main"
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.5.0",
+  "pytest>=8.0.0",
+  "mypy>=1.10.0",
+]
+
+[tool.setuptools]
+# If your project is just a few top-level .py files (no package directory),
+# declare them as modules so they get installed.
+py-modules = [
+  "svg2excalidraw",
+  "svg_reader",
+  "excalidraw_writer",
+  "path_handler",
+  "svg2exc_logging",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -30,7 +30,8 @@ class Excalidraw_Element:
     opacity: int = field(default=100)
     groupIds: List = field(default_factory=list)
     strokeSharpness: str = field(default='sharp')
-    seed: int=0 #= randint(1000, 999999)
+    #seed: int=0 #= randint(1000, 999999)
+    seed: randint(1000, 999999)
     version: int = field(default=316)
     versionNonce: int = 0
     isDeleted: bool = field(default=False)
