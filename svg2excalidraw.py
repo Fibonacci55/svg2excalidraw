@@ -1,10 +1,10 @@
 # svg2excalidraw.py
 
 import argparse
-import re
-from collections import UserDict
 from dataclasses import replace
 from pathlib import Path
+from style_converter import SvgStyle2Excalidraw
+from excalidraw_colors import ColorTweaker, KeepColorTweaker, AreaColorTweak, TangramObject
 
 import jsonpickle
 
@@ -16,179 +16,14 @@ import svg2exc_logging
 
 log = svg2exc_logging.getLogger("svg2excalidraw")
 
-
-class SvgStyle2Excalidraw(UserDict):
-    """
-    Converts an SVG style mapping (dict or CSS-like 'a:b;c:d' string) into
-    Excalidraw element properties.
-
-    Notes:
-    - Excalidraw has a single 'opacity' per element; SVG can have opacity,
-      fill-opacity, stroke-opacity. We approximate with:
-          effective = overall_opacity * min(used_fill_opacity, used_stroke_opacity)
-      (ignoring fill-opacity if fill='none', and stroke-opacity if stroke='none').
-    """
-
-    _NUM_RE = re.compile(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
-
-    def __init__(self):
-        super().__init__()
-
-    @staticmethod
-    def _clamp(v: float, lo: float, hi: float) -> float:
-        return max(lo, min(hi, v))
-
-    @classmethod
-    def _extract_number(cls, value) -> float | None:
-        """
-        Extract a float from values like:
-          1, 1.5, '2', '2px', '0.5pt', ' 3.2 '
-        Returns None if no number is found.
-        """
-        if value is None:
-            return None
-        if isinstance(value, (int, float)):
-            return float(value)
-
-        s = str(value).strip()
-        if not s:
-            return None
-
-        m = cls._NUM_RE.search(s)
-        if not m:
-            return None
-
-        try:
-            return float(m.group(0))
-        except ValueError:
-            return None
-
-    @classmethod
-    def _parse_alpha(cls, value) -> float | None:
-        """
-        SVG opacity values are typically 0..1 (sometimes written as percentages).
-        Returns alpha in [0..1] or None if not parseable.
-        """
-        if value is None:
-            return None
-
-        s = str(value).strip()
-        if not s:
-            return None
-
-        if s.endswith("%"):
-            num = cls._extract_number(s[:-1])
-            if num is None:
-                return None
-            return cls._clamp(num / 100.0, 0.0, 1.0)
-
-        num = cls._extract_number(s)
-        if num is None:
-            return None
-
-        # If someone gave "50" assume percent-like; otherwise standard SVG 0..1.
-        if num > 1.0:
-            num = num / 100.0
-        return cls._clamp(num, 0.0, 1.0)
-
-    @classmethod
-    def _parse_style(cls, svg_style) -> dict:
-        if svg_style is None:
-            return {}
-        if isinstance(svg_style, dict):
-            return svg_style
-        if isinstance(svg_style, str):
-            # Parse "fill:#fff; stroke:#000; stroke-width:2"
-            out = {}
-            for part in svg_style.split(";"):
-                part = part.strip()
-                if not part or ":" not in part:
-                    continue
-                k, v = part.split(":", 1)
-                out[k.strip()] = v.strip()
-            return out
-        # Unknown container type
-        return {}
-
-    @staticmethod
-    def _to_excal_color(value: str | None) -> str | None:
-        """
-        Excalidraw accepts color strings (e.g. '#rrggbb') and 'transparent'.
-        """
-        if value is None:
-            return None
-        s = str(value).strip()
-        if not s:
-            return None
-        if s.lower() == "none":
-            return "transparent"
-        return s
-
-    @classmethod
-    def _to_excal_stroke_width(cls, value) -> int | None:
-        """
-        Map SVG stroke-width (often in px) to Excalidraw strokeWidth.
-        Excalidraw typically uses small integer widths. We clamp to [1..4].
-        """
-        num = cls._extract_number(value)
-        if num is None:
-            return None
-
-        # Keep it simple and predictable: round and clamp.
-        w = int(round(num))
-        return max(1, min(4, w))
-
-    def __call__(self, svg_style) -> dict:
-        style = self._parse_style(svg_style)
-        out: dict = {}
-
-        # Colors
-        if "fill" in style:
-            out["backgroundColor"] = self._to_excal_color(style.get("fill"))
-        if "stroke" in style:
-            out["strokeColor"] = self._to_excal_color(style.get("stroke"))
-
-        # Stroke width
-        if "stroke-width" in style:
-            sw = self._to_excal_stroke_width(style.get("stroke-width"))
-            if sw is not None:
-                out["strokeWidth"] = sw
-
-        # Opacity (approximate SVG rules into a single Excalidraw opacity)
-        overall_alpha = self._parse_alpha(style.get("opacity"))
-        fill_alpha = self._parse_alpha(style.get("fill-opacity"))
-        stroke_alpha = self._parse_alpha(style.get("stroke-opacity"))
-
-        if overall_alpha is None and fill_alpha is None and stroke_alpha is None:
-            return out
-
-        overall_alpha = 1.0 if overall_alpha is None else overall_alpha
-        fill_alpha = 1.0 if fill_alpha is None else fill_alpha
-        stroke_alpha = 1.0 if stroke_alpha is None else stroke_alpha
-
-        fill_val = str(style.get("fill", "")).strip().lower()
-        stroke_val = str(style.get("stroke", "")).strip().lower()
-
-        candidates = []
-        if fill_val and fill_val != "none":
-            candidates.append(fill_alpha)
-        if stroke_val and stroke_val != "none":
-            candidates.append(stroke_alpha)
-
-        effective_alpha = overall_alpha * (min(candidates) if candidates else 1.0)
-        effective_alpha = self._clamp(effective_alpha, 0.0, 1.0)
-        out["opacity"] = int(round(effective_alpha * 100))
-
-        return out
-
-
 class Converter:
-    def __init__(self):
+    def __init__(self, style_converter : SvgStyle2Excalidraw=SvgStyle2Excalidraw(), color_tweak: ColorTweaker = KeepColorTweaker()):
         self.elements = []
         self.path_handler = PathHandler()
-        self.style_converter = SvgStyle2Excalidraw()
         self.groups: list[str] = []
         self._auto_id = 0
+        self.style_converter = style_converter
+        self.color_tweak = color_tweak
 
     def _new_id(self, prefix: str) -> str:
         self._auto_id += 1
@@ -275,7 +110,9 @@ class Converter:
             el.visit(self)
 
 
-def convert(inpath: Path, outpath: Path, pattern: str = "*.svg") -> None:
+def convert(inpath: Path, outpath: Path, pattern: str = "*.svg",
+            style_converter: SvgStyle2Excalidraw=SvgStyle2Excalidraw(),
+            color_tweak: ColorTweaker=KeepColorTweaker) -> None:
     inpath = Path(inpath)
     outpath = Path(outpath)
 
@@ -297,7 +134,7 @@ def convert(inpath: Path, outpath: Path, pattern: str = "*.svg") -> None:
             w = svg_reader.My_Doc_Walker(filename)
             w.walk()
 
-            c = Converter()
+            c = Converter(style_converter=style_converter, color_tweak=color_tweak)
             c.convert(w.elements)
 
             if output_is_dir:
@@ -306,6 +143,7 @@ def convert(inpath: Path, outpath: Path, pattern: str = "*.svg") -> None:
                 # Single input file -> single output file
                 outf_name = outpath
 
+            color_tweak.apply_colors(c.elements)
             painting = excalidraw_writer.Excalidraw_Painting(elements=c.elements)
             payload = jsonpickle.encode(painting, unpicklable=False, indent=3)
             outf_name.write_text(payload, encoding="utf-8")
@@ -335,7 +173,14 @@ def main() -> None:
     except Exception:
         pass
 
-    convert(args.inpath, args.outpath, pattern=args.pattern)
+    colors = {
+        TangramObject.SQUARE : '#4EE203',
+        TangramObject.BIG_TRIANGLE : '#115AB8',
+        TangramObject.PARALLELOGRAM : '#FF9F03',
+        TangramObject.SMALL_TRIANGLE : '#4EE203',
+        TangramObject.MEDIUM_TRIANGLE : '#F29F03',
+    }
+    convert(args.inpath, args.outpath, pattern=args.pattern, color_tweak=AreaColorTweak(colors))
 
 
 if __name__ == "__main__":
